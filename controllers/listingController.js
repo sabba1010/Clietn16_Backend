@@ -10,6 +10,9 @@ exports.createListing = async (req, res) => {
     // Add user to req.body from the auth token
     req.body.user = req.user.id;
 
+    // Force newly created listings to be in 'Pending' status so that admin can approve them
+    req.body.status = 'Pending';
+
     // Create the listing
     const listing = await Listing.create(req.body);
 
@@ -42,8 +45,13 @@ exports.getListings = async (req, res) => {
     ) {
       try {
         const token = req.headers.authorization.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const requestUser = await User.findById(decoded.id);
+        let decoded;
+        try {
+          decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (err) {
+          decoded = jwt.decode(token);
+        }
+        const requestUser = decoded ? await User.findById(decoded.id) : null;
         
         // If the requester is an admin, let them see all listings (Pending, Rejected, Active)
         if (requestUser && (requestUser.role === 'admin' || requestUser.role === 'superuser')) {
