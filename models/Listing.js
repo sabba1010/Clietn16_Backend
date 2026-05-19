@@ -15,6 +15,10 @@ const listingSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  logo: {
+    type: String,
+    trim: true
+  },
   tagline: {
     type: String,
     trim: true
