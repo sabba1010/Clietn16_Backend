@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
+const listingRoutes = require('./routes/listing');
 
 // Initialize express app
 const app = express();
@@ -30,6 +31,7 @@ app.get('/', (req, res) => {
 
 // Register API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/listings', listingRoutes);
 
 // 404 Route handler
 app.use((req, res, next) => {
