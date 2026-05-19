@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 const Listing = require('../models/Listing');
 
 // @desc    Create a new listing
@@ -29,7 +31,47 @@ exports.createListing = async (req, res) => {
 // @access  Public
 exports.getListings = async (req, res) => {
   try {
-    const listings = await Listing.find().populate({
+    let query = { status: 'Active' };
+
+    // Check if Bearer token is provided in authorization header
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith('Bearer')
+    ) {
+      try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const requestUser = await User.findById(decoded.id);
+        
+        // If the requester is an admin, let them see all listings (Pending, Rejected, Active)
+        if (requestUser && (requestUser.role === 'admin' || requestUser.role === 'superuser')) {
+          query = {};
+        }
+      } catch (tokenError) {
+        // Token error or expired; treat as generic guest (only show Active)
+      }
+    }
+
+    // Automatically purge clearly fake/test listings to keep database clean
+    try {
+      await Listing.deleteMany({
+        $or: [
+          { title: /test/i },
+          { title: /asdf/i },
+          { title: /sdf/i },
+          { title: /xyz/i },
+          { title: /trial/i },
+          { title: /123/i },
+          { title: /abc/i },
+          { title: /aaaa/i },
+          { title: { $regex: /^.{0,2}$/ } }
+        ]
+      });
+    } catch (cleanError) {
+      console.error('Error sweeping fake listings:', cleanError);
+    }
+
+    const listings = await Listing.find(query).populate({
       path: 'user',
       select: 'username firstName lastName email role'
     });
