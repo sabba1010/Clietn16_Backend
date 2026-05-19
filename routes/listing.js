@@ -110,11 +110,12 @@ router.get('/seed', async (req, res) => {
 // Public route to fetch all listings
 router.get('/', getListings);
 
-// Public route to fetch single listing by ID
-router.get('/id/:id', getListingById);
-
 // Protected route to get logged-in user's listings
 router.get('/my-listings', protect, getMyListings);
+
+// Public route to fetch single listing by ID
+router.get('/id/:id', getListingById);
+router.get('/:id', getListingById);
 
 // Protected route to create a listing
 router.post('/', protect, createListing);
