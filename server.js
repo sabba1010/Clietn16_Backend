@@ -1,9 +1,11 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const listingRoutes = require('./routes/listing');
+const uploadRoutes = require('./routes/upload');
 
 // Initialize express app
 const app = express();
@@ -19,6 +21,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Base verification route
 app.get('/', (req, res) => {
@@ -32,6 +35,7 @@ app.get('/', (req, res) => {
 // Register API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/listings', listingRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // 404 Route handler
 app.use((req, res, next) => {

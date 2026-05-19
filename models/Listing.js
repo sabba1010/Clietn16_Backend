@@ -126,7 +126,22 @@ const listingSchema = new mongoose.Schema({
     service: { type: String, required: true },
     price: { type: String, required: true },
     desc: { type: String }
-  }]
+  }],
+  // Opening Hours
+  openingHours: [{
+    day: { type: String },
+    isOpen: { type: Boolean },
+    openTime: { type: String },
+    closeTime: { type: String }
+  }],
+  enablePricing: {
+    type: Boolean,
+    default: false
+  },
+  enableOpeningHours: {
+    type: Boolean,
+    default: false
+  }
 }, {
   timestamps: true
 });
