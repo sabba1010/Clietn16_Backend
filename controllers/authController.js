@@ -176,9 +176,34 @@ const updateProfile = async (req, res) => {
   }
 };
 
+// @desc    Get user profile by ID (Public)
+// @route   GET /api/auth/profile/:id
+// @access  Public
+const getUserProfileById = async (req, res) => {
+  try {
+    // Validate MongoDB ObjectId format using regex to prevent CastError
+    if (!/^[0-9a-fA-F]{24}$/.test(req.params.id)) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const user = await User.findById(req.params.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    res.json({
+      success: true,
+      user
+    });
+  } catch (error) {
+    console.error('Get profile by ID error:', error);
+    res.status(500).json({ success: false, message: 'Server error fetching user profile', error: error.message });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   getMe,
-  updateProfile
+  updateProfile,
+  getUserProfileById
 };
