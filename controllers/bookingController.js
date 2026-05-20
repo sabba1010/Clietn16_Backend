@@ -12,7 +12,8 @@ exports.createBooking = async (req, res) => {
       requirements,
       customerName,
       customerEmail,
-      totalAmount
+      totalAmount,
+      serviceType
     } = req.body;
 
     const booking = new Booking({
@@ -25,7 +26,8 @@ exports.createBooking = async (req, res) => {
       requirements,
       customerName,
       customerEmail,
-      totalAmount
+      totalAmount,
+      serviceType
     });
 
     const savedBooking = await booking.save();

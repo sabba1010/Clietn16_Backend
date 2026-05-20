@@ -43,6 +43,10 @@ const bookingSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  serviceType: {
+    type: String,
+    default: 'General Pet Boarding'
+  },
   status: {
     type: String,
     enum: ['Pending', 'Approved', 'Cancelled'],
