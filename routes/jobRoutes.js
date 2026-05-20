@@ -28,6 +28,18 @@ router.post('/', protect, async (req, res) => {
   }
 });
 
+// GET /api/jobs/public — Publicly accessible active jobs
+router.get('/public', async (req, res) => {
+  try {
+    const jobs = await Job.find({ status: 'Active' })
+      .populate('owner', 'firstName lastName avatar isVerified')
+      .sort({ createdAt: -1 });
+    res.json({ success: true, data: jobs });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // GET /api/jobs/my — Pet owner's own jobs
 router.get('/my', protect, async (req, res) => {
   try {
