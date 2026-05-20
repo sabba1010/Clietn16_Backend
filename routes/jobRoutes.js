@@ -41,6 +41,18 @@ router.get('/public', async (req, res) => {
   }
 });
 
+// GET /api/jobs/public/:id — Single publicly accessible active job
+router.get('/public/:id', async (req, res) => {
+  try {
+    const job = await Job.findOne({ _id: req.params.id, status: 'Active' })
+      .populate('owner', 'firstName lastName email phone avatar isVerified');
+    if (!job) return res.status(404).json({ success: false, message: 'Job not found or not active' });
+    res.json({ success: true, data: job });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // GET /api/jobs/my — Pet owner's own jobs
 router.get('/my', protect, async (req, res) => {
   try {
