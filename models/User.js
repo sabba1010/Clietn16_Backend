@@ -40,7 +40,27 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['owner', 'sitter', 'admin', 'superuser'],
     default: 'owner'
-  }
+  },
+  avatar: { type: String, default: '' },
+  coverImage: { type: String, default: '' },
+  displayName: { type: String, default: '' },
+  location: { type: String, default: '' },
+  phone: { type: String, default: '' },
+  profession: { type: String, default: '' },
+  aboutUs: { type: String, default: '' },
+  homeFeatures: {
+    nonSmoking: { type: Boolean, default: false },
+    spaciousBackyard: { type: Boolean, default: false },
+    securityAlarm: { type: Boolean, default: false },
+    homeChecks: { type: Boolean, default: false }
+  },
+  pets: [{
+    name: String,
+    type: { type: String },
+    age: String,
+    image: String,
+    rating: { type: Number, default: 5.0 }
+  }]
 }, {
   timestamps: true
 });

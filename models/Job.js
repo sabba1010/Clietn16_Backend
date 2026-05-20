@@ -42,7 +42,11 @@ const jobSchema = new mongoose.Schema({
     type: String,
     enum: ['Pending', 'Active', 'Rejected'],
     default: 'Pending'
-  }
+  },
+  applicants: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }]
 }, {
   timestamps: true
 });

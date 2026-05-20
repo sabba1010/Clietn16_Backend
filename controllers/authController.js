@@ -125,8 +125,60 @@ const getMe = async (req, res) => {
   }
 };
 
+// @desc    Update user profile
+// @route   PUT /api/auth/profile
+// @access  Private
+const updateProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Update fields if provided
+    const updatableFields = [
+      'firstName', 'lastName', 'avatar', 'coverImage', 'displayName', 
+      'location', 'phone', 'profession', 'aboutUs', 'homeFeatures', 'pets'
+    ];
+
+    updatableFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        user[field] = req.body[field];
+      }
+    });
+
+    const updatedUser = await user.save();
+    
+    res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      user: {
+        id: updatedUser._id,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        role: updatedUser.role,
+        avatar: updatedUser.avatar,
+        coverImage: updatedUser.coverImage,
+        displayName: updatedUser.displayName,
+        location: updatedUser.location,
+        phone: updatedUser.phone,
+        profession: updatedUser.profession,
+        aboutUs: updatedUser.aboutUs,
+        homeFeatures: updatedUser.homeFeatures,
+        pets: updatedUser.pets
+      }
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ success: false, message: 'Server error updating profile', error: error.message });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
-  getMe
+  getMe,
+  updateProfile
 };

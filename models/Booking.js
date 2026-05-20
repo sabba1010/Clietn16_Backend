@@ -14,7 +14,12 @@ const bookingSchema = new mongoose.Schema({
   listing: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Listing',
-    required: true
+    required: false
+  },
+  job: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Job',
+    required: false
   },
   customerName: {
     type: String,
