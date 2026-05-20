@@ -50,4 +50,24 @@ router.get('/:listingId', async (req, res) => {
   }
 });
 
+// Get all reviews on sitter's own listings
+router.get('/sitter/my-reviews', protect, async (req, res) => {
+  try {
+    const Listing = require('../models/Listing');
+    // Find all listings owned by this sitter
+    const listings = await Listing.find({ owner: req.user.id }).select('_id title');
+    const listingIds = listings.map(l => l._id);
+
+    const reviews = await Review.find({ listing: { $in: listingIds } })
+      .populate('listing', 'title')
+      .populate('user', 'firstName lastName avatar')
+      .sort({ createdAt: -1 });
+
+    res.json({ success: true, data: reviews });
+  } catch (error) {
+    console.error('Error fetching sitter reviews:', error);
+    res.status(500).json({ success: false, message: error.message || 'Server error' });
+  }
+});
+
 module.exports = router;
