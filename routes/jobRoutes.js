@@ -6,7 +6,7 @@ const { protect } = require('../middleware/auth');
 // POST /api/jobs — Pet owner creates a job
 router.post('/', protect, async (req, res) => {
   try {
-    const { title, description, location, startDate, endDate, petType, budget } = req.body;
+    const { title, description, location, startDate, endDate, petType, budget, petImages } = req.body;
     if (!title || !description || !location || !startDate || !endDate || !budget) {
       return res.status(400).json({ success: false, message: 'Please fill all required fields' });
     }
@@ -18,7 +18,8 @@ router.post('/', protect, async (req, res) => {
       startDate,
       endDate,
       petType: petType || 'Dog',
-      budget: budget || '',
+      petImages: petImages || [],
+      budget,
       status: 'Pending'
     });
     res.status(201).json({ success: true, data: job });

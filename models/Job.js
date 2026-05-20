@@ -30,6 +30,10 @@ const jobSchema = new mongoose.Schema({
     type: String,
     default: 'Dog'
   },
+  petImages: {
+    type: [String],
+    default: []
+  },
   budget: {
     type: String,
     required: true
