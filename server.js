@@ -8,6 +8,7 @@ const listingRoutes = require('./routes/listing');
 const uploadRoutes = require('./routes/upload');
 const bookingRoutes = require('./routes/bookingRoutes');
 const messageRoutes = require('./routes/messageRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 // Initialize express app
 const app = express();
@@ -40,6 +41,7 @@ app.use('/api/listings', listingRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // 404 Route handler
 app.use((req, res, next) => {
