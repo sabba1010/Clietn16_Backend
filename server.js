@@ -6,6 +6,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const listingRoutes = require('./routes/listing');
 const uploadRoutes = require('./routes/upload');
+const bookingRoutes = require('./routes/bookingRoutes');
 
 // Initialize express app
 const app = express();
@@ -36,6 +37,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/listings', listingRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 // 404 Route handler
 app.use((req, res, next) => {
