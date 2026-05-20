@@ -2,12 +2,12 @@
 const express = require('express');
 const router = express.Router();
 const { getMessages, postMessage } = require('../controllers/messageController');
-const auth = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
 
-// Get messages for a specific booking (query param ?bookingId=...)
-router.get('/:bookingId', auth, getMessages);
+// Get messages for a specific booking
+router.get('/:bookingId', protect, getMessages);
 
 // Post a new message
-router.post('/', auth, postMessage);
+router.post('/', protect, postMessage);
 
 module.exports = router;

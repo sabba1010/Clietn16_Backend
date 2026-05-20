@@ -3,9 +3,19 @@ const Booking = require('../models/Booking');
 const User = require('../models/User');
 const asyncHandler = require('express-async-handler');
 
+// Helper function to extract user ID string whether populated or not
+const getUserId = (user) => {
+  if (!user) return null;
+  if (user._id) {
+    return user._id.toString();
+  }
+  return user.toString();
+};
+
 // @desc    Get messages for a booking
 // @route   GET /api/messages/:bookingId
 // @access  Private (auth middleware)
+// @desc    Get messages for a booking
 exports.getMessages = asyncHandler(async (req, res) => {
   const { bookingId } = req.params;
   // Verify booking exists and belongs to user or sitter
@@ -15,7 +25,9 @@ exports.getMessages = asyncHandler(async (req, res) => {
   }
   // Allow if requester is client or sitter
   const requesterId = req.user.id;
-  if (booking.client?.toString() !== requesterId && booking.sitter?.toString() !== requesterId) {
+  const clientId = getUserId(booking.client);
+  const sitterId = getUserId(booking.sitter);
+  if (clientId !== requesterId && sitterId !== requesterId) {
     return res.status(403).json({ success: false, message: 'Not authorized' });
   }
   const messages = await Message.find({ booking: bookingId })
@@ -38,7 +50,9 @@ exports.postMessage = asyncHandler(async (req, res) => {
   }
   // Ensure sender is part of the booking
   const senderId = req.user.id;
-  if (booking.client?.toString() !== senderId && booking.sitter?.toString() !== senderId) {
+  const clientId = getUserId(booking.client);
+  const sitterId = getUserId(booking.sitter);
+  if (clientId !== senderId && sitterId !== senderId) {
     return res.status(403).json({ success: false, message: 'Not authorized to send message' });
   }
   const message = await Message.create({ booking: bookingId, sender: senderId, content });
