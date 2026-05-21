@@ -1,4 +1,5 @@
 const Booking = require('../models/Booking');
+const Listing = require('../models/Listing');
 
 // Create new booking
 exports.createBooking = async (req, res) => {
@@ -16,18 +17,34 @@ exports.createBooking = async (req, res) => {
       serviceType
     } = req.body;
 
+    if (!listingId) {
+      return res.status(400).json({ success: false, message: 'Listing is required' });
+    }
+
+    const listing = await Listing.findById(listingId);
+    if (!listing) {
+      return res.status(404).json({ success: false, message: 'Listing not found' });
+    }
+
+    // Always assign the listing owner as the sitter so bookings reach their dashboard
+    const resolvedSitterId = listing.user?.toString() || sitterId;
+    if (!resolvedSitterId) {
+      return res.status(400).json({ success: false, message: 'Sitter not found for this listing' });
+    }
+
     const booking = new Booking({
       client: req.user.id,
       listing: listingId,
-      sitter: sitterId,
+      sitter: resolvedSitterId,
       date,
-      time,
+      time: time || 'Not specified',
       petCount,
       requirements,
       customerName,
       customerEmail,
-      totalAmount,
-      serviceType
+      totalAmount: totalAmount ?? listing.minPrice ?? 0,
+      serviceType: serviceType || listing.title || listing.category || 'Pet Care',
+      status: 'Pending'
     });
 
     const savedBooking = await booking.save();
