@@ -74,6 +74,26 @@ router.post('/:id/apply', protect, async (req, res) => {
   }
 });
 
+// DELETE /api/jobs/:id/withdraw — Sitter withdraws their application
+router.delete('/:id/withdraw', protect, async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id);
+    if (!job) return res.status(404).json({ success: false, message: 'Job not found' });
+
+    const index = job.applicants.indexOf(req.user.id);
+    if (index === -1) {
+      return res.status(400).json({ success: false, message: 'You have not applied to this job.' });
+    }
+
+    job.applicants.splice(index, 1);
+    await job.save();
+
+    res.json({ success: true, message: 'Application withdrawn successfully.' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // POST /api/jobs/:id/chat/:applicantId — Initiate chat with applicant by creating a pending booking if needed
 router.post('/:id/chat/:applicantId', protect, async (req, res) => {
   try {
@@ -102,6 +122,42 @@ router.post('/:id/chat/:applicantId', protect, async (req, res) => {
     }
     
     res.json({ success: true, bookingId: booking._id });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// GET /api/jobs/applied — Sitter's applied jobs
+router.get('/applied', protect, async (req, res) => {
+  try {
+    const jobs = await Job.find({ applicants: req.user.id })
+      .populate('owner', 'firstName lastName avatar email phone')
+      .sort({ createdAt: -1 });
+    res.json({ success: true, data: jobs });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// GET /api/jobs/:id/messages — Get booking + messages for a specific job (sitter view)
+router.get('/:id/messages', protect, async (req, res) => {
+  try {
+    const Booking = require('../models/Booking');
+    const Message = require('../models/Message');
+
+    // Find booking linked to this job where sitter = current user
+    const booking = await Booking.findOne({ job: req.params.id, sitter: req.user.id })
+      .populate('client', 'firstName lastName avatar email');
+
+    if (!booking) {
+      return res.json({ success: true, bookingId: null, messages: [], client: null });
+    }
+
+    const messages = await Message.find({ booking: booking._id })
+      .populate('sender', 'firstName lastName avatar')
+      .sort({ createdAt: 1 });
+
+    res.json({ success: true, bookingId: booking._id, messages, client: booking.client });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
