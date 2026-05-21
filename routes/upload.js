@@ -37,6 +37,13 @@ const handleMulter = (req, res, next) => {
 // @access  Private
 router.post('/', protect, handleMulter, async (req, res) => {
   try {
+    // ── Runtime diagnostic (visible in Vercel Function Logs) ──────────────
+    console.log('[upload] CLOUDINARY_CLOUD_NAME present:', Boolean(process.env.CLOUDINARY_CLOUD_NAME));
+    console.log('[upload] CLOUDINARY_API_KEY present:    ', Boolean(process.env.CLOUDINARY_API_KEY));
+    console.log('[upload] CLOUDINARY_API_SECRET present: ', Boolean(process.env.CLOUDINARY_API_SECRET));
+    console.log('[upload] req.file present:               ', Boolean(req.file));
+    // ─────────────────────────────────────────────────────────────────────
+
     if (!isCloudinaryConfigured()) {
       return res.status(503).json({
         success: false,
