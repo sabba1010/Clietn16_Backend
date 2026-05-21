@@ -127,6 +127,59 @@ router.post('/:id/chat/:applicantId', protect, async (req, res) => {
   }
 });
 
+// POST /api/jobs/:id/accept/:applicantId — Owner accepts a sitter + records payment
+router.post('/:id/accept/:applicantId', protect, async (req, res) => {
+  try {
+    const { amount, paymentMethod, cardLast4 } = req.body;
+    const job = await Job.findById(req.params.id);
+    if (!job) return res.status(404).json({ success: false, message: 'Job not found' });
+    if (job.owner.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Only the job owner can accept a sitter' });
+    }
+
+    const Booking = require('../models/Booking');
+    // Find or create booking for this job + sitter
+    let booking = await Booking.findOne({ job: job._id, sitter: req.params.applicantId, client: req.user.id });
+    if (!booking) {
+      booking = await Booking.create({
+        client: req.user.id,
+        sitter: req.params.applicantId,
+        job: job._id,
+        customerName: req.user.firstName + ' ' + req.user.lastName,
+        customerEmail: req.user.email,
+        date: job.startDate,
+        time: 'N/A',
+        petCount: 1,
+        requirements: job.description,
+        totalAmount: amount || 0,
+        serviceType: job.petType + ' Sitting',
+        status: 'Pending'
+      });
+    }
+
+    // Mark booking as Approved + record payment
+    booking.status = 'Approved';
+    booking.totalAmount = amount || booking.totalAmount;
+    booking.paymentStatus = 'Paid';
+    await booking.save();
+
+    // Notify sitter via socket
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`booking_${booking._id}`).emit('booking_accepted', {
+        bookingId: booking._id,
+        jobTitle: job.title,
+        amount,
+        paymentMethod,
+      });
+    }
+
+    res.json({ success: true, bookingId: booking._id, message: 'Sitter accepted and payment recorded.' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // GET /api/jobs/applied — Sitter's applied jobs
 router.get('/applied', protect, async (req, res) => {
   try {
