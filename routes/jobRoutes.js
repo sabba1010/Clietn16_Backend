@@ -32,7 +32,7 @@ router.post('/', protect, async (req, res) => {
 // GET /api/jobs/public — Publicly accessible active jobs
 router.get('/public', async (req, res) => {
   try {
-    const jobs = await Job.find({ status: 'Active' })
+    const jobs = await Job.find({ status: 'Active', isFilled: false })
       .populate('owner', 'firstName lastName avatar isVerified')
       .sort({ createdAt: -1 });
     res.json({ success: true, data: jobs });
@@ -44,9 +44,9 @@ router.get('/public', async (req, res) => {
 // GET /api/jobs/public/:id — Single publicly accessible active job
 router.get('/public/:id', async (req, res) => {
   try {
-    const job = await Job.findOne({ _id: req.params.id, status: 'Active' })
+    const job = await Job.findOne({ _id: req.params.id, status: 'Active', isFilled: false })
       .populate('owner', 'firstName lastName email phone avatar isVerified');
-    if (!job) return res.status(404).json({ success: false, message: 'Job not found or not active' });
+    if (!job) return res.status(404).json({ success: false, message: 'Job not found or not available' });
     res.json({ success: true, data: job });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -162,6 +162,10 @@ router.post('/:id/accept/:applicantId', protect, async (req, res) => {
     booking.totalAmount = amount || booking.totalAmount;
     booking.paymentStatus = 'Paid';
     await booking.save();
+
+    // Mark job as filled → remove from marketplace
+    job.isFilled = true;
+    await job.save();
 
     // Notify sitter via socket
     const io = req.app.get('io');

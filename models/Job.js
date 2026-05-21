@@ -46,7 +46,11 @@ const jobSchema = new mongoose.Schema({
   applicants: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  }]
+  }],
+  isFilled: {
+    type: Boolean,
+    default: false
+  }
 }, {
   timestamps: true
 });
