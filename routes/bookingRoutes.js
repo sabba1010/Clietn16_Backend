@@ -4,12 +4,15 @@ const {
   createBooking, 
   getMyBookings, 
   getSitterBookings, 
+  getSitterAvailability,
   updateBookingStatus 
 } = require('../controllers/bookingController');
 const { protect } = require('../middleware/auth');
 
 router.route('/')
   .post(protect, createBooking);
+
+router.get('/availability', getSitterAvailability);
 
 router.route('/my-bookings')
   .get(protect, getMyBookings);

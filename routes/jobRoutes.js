@@ -74,13 +74,26 @@ router.post('/:id/apply', protect, async (req, res) => {
   }
 });
 
-// DELETE /api/jobs/:id/withdraw — Sitter withdraws their application
+// DELETE /api/jobs/:id/withdraw — Sitter withdraws their application (not allowed after accept)
 router.delete('/:id/withdraw', protect, async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
     if (!job) return res.status(404).json({ success: false, message: 'Job not found' });
 
-    const index = job.applicants.indexOf(req.user.id);
+    const Booking = require('../models/Booking');
+    const sitterId = req.user.id.toString();
+    const acceptedByOwner =
+      job.acceptedSitter?.toString() === sitterId ||
+      !!(await Booking.findOne({ job: job._id, sitter: sitterId, status: 'Approved' }));
+
+    if (acceptedByOwner) {
+      return res.status(403).json({
+        success: false,
+        message: 'You cannot withdraw after the owner has accepted your application.',
+      });
+    }
+
+    const index = job.applicants.findIndex((id) => id.toString() === sitterId);
     if (index === -1) {
       return res.status(400).json({ success: false, message: 'You have not applied to this job.' });
     }
@@ -163,8 +176,9 @@ router.post('/:id/accept/:applicantId', protect, async (req, res) => {
     booking.paymentStatus = 'Paid';
     await booking.save();
 
-    // Mark job as filled → remove from marketplace
+    // Mark job as filled and lock accepted sitter (no withdraw after this)
     job.isFilled = true;
+    job.acceptedSitter = req.params.applicantId;
     await job.save();
 
     // Notify sitter via socket
@@ -187,10 +201,34 @@ router.post('/:id/accept/:applicantId', protect, async (req, res) => {
 // GET /api/jobs/applied — Sitter's applied jobs
 router.get('/applied', protect, async (req, res) => {
   try {
+    const Booking = require('../models/Booking');
+    const sitterId = req.user.id.toString();
     const jobs = await Job.find({ applicants: req.user.id })
       .populate('owner', 'firstName lastName avatar email phone')
-      .sort({ createdAt: -1 });
-    res.json({ success: true, data: jobs });
+      .populate('acceptedSitter', 'firstName lastName')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const enriched = await Promise.all(
+      jobs.map(async (job) => {
+        const hasApprovedBooking = !!(await Booking.findOne({
+          job: job._id,
+          sitter: sitterId,
+          status: 'Approved',
+        }));
+        let acceptedSitterId = null;
+        if (job.acceptedSitter) {
+          acceptedSitterId =
+            typeof job.acceptedSitter === 'object' && job.acceptedSitter._id
+              ? job.acceptedSitter._id.toString()
+              : String(job.acceptedSitter);
+        }
+        const isAccepted = acceptedSitterId === sitterId || hasApprovedBooking;
+        return { ...job, isAccepted };
+      })
+    );
+
+    res.json({ success: true, data: enriched });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

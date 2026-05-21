@@ -50,6 +50,11 @@ const jobSchema = new mongoose.Schema({
   isFilled: {
     type: Boolean,
     default: false
+  },
+  acceptedSitter: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
   }
 }, {
   timestamps: true
