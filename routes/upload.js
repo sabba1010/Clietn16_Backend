@@ -51,7 +51,7 @@ router.post('/', protect, upload.single('file'), (req, res) => {
       });
     }
 
-    const apiUrl = process.env.VITE_API_URL || 'http://localhost:5000/api';
+    const apiUrl = process.env.VITE_API_URL || 'https://clietn16-backend.vercel.app/api';
     const baseUrl = apiUrl.replace('/api', '');
     const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
 
