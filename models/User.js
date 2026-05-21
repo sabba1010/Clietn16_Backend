@@ -41,6 +41,10 @@ const userSchema = new mongoose.Schema({
     enum: ['owner', 'sitter', 'admin', 'superuser'],
     default: 'owner'
   },
+  isBlocked: {
+    type: Boolean,
+    default: false
+  },
   avatar: { type: String, default: '' },
   coverImage: { type: String, default: '' },
   displayName: { type: String, default: '' },

@@ -83,6 +83,13 @@ const loginUser = async (req, res) => {
       ]
     });
 
+    if (user && user.isBlocked) {
+      return res.status(403).json({
+        success: false,
+        message: 'Your account has been blocked. Contact the administrator.',
+      });
+    }
+
     if (user && (await user.matchPassword(password))) {
       res.json({
         success: true,

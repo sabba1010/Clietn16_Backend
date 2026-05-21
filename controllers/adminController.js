@@ -147,3 +147,126 @@ exports.getDashboardStats = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error fetching dashboard stats' });
   }
 };
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password').sort({ createdAt: -1 }).lean();
+
+    const enriched = await Promise.all(
+      users.map(async (u) => {
+        const [sitterBookingsCount, clientBookingsCount, listingsCount] = await Promise.all([
+          Booking.countDocuments({ sitter: u._id }),
+          Booking.countDocuments({ client: u._id }),
+          Listing.countDocuments({ user: u._id }),
+        ]);
+        return {
+          ...u,
+          sitterBookingsCount,
+          clientBookingsCount,
+          listingsCount,
+        };
+      })
+    );
+
+    res.status(200).json({ success: true, data: enriched });
+  } catch (error) {
+    console.error('Get all users error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.getUserBookings = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const [asSitter, asClient] = await Promise.all([
+      Booking.find({ sitter: userId })
+        .populate('client', 'firstName lastName username email')
+        .populate('listing', 'title category')
+        .sort({ createdAt: -1 }),
+      Booking.find({ client: userId })
+        .populate('sitter', 'firstName lastName username email')
+        .populate('listing', 'title category')
+        .sort({ createdAt: -1 }),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        user,
+        asSitter,
+        asClient,
+      },
+    });
+  } catch (error) {
+    console.error('Get user bookings error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.toggleBlockUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (user._id.toString() === req.user.id) {
+      return res.status(400).json({ success: false, message: 'You cannot block your own account' });
+    }
+
+    if (['admin', 'superuser'].includes(user.role) && req.user.role !== 'superuser') {
+      return res.status(403).json({ success: false, message: 'Cannot block another administrator' });
+    }
+
+    user.isBlocked = !user.isBlocked;
+    await user.save();
+
+    const safe = user.toObject();
+    delete safe.password;
+
+    res.status(200).json({
+      success: true,
+      data: safe,
+      message: user.isBlocked ? 'User blocked successfully' : 'User unblocked successfully',
+    });
+  } catch (error) {
+    console.error('Toggle block user error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (user._id.toString() === req.user.id) {
+      return res.status(400).json({ success: false, message: 'You cannot delete your own account' });
+    }
+
+    if (['admin', 'superuser'].includes(user.role)) {
+      return res.status(403).json({ success: false, message: 'Cannot delete an administrator account' });
+    }
+
+    await Promise.all([
+      Listing.deleteMany({ user: user._id }),
+      Booking.deleteMany({ $or: [{ client: user._id }, { sitter: user._id }] }),
+      Job.updateMany({ applicants: user._id }, { $pull: { applicants: user._id } }),
+      Review.deleteMany({ user: user._id }),
+    ]);
+
+    await User.findByIdAndDelete(user._id);
+
+    res.status(200).json({ success: true, message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
