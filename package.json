@@ -1,7 +1,7 @@
 {
   "name": "oppas-haven-backend",
   "version": "1.0.0",
-  "description": "Role-based auth backend for Oppas Haven",
+  "description": "Role-based auth backend for Home Paw",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
