@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
     socket.leave(`booking_${bookingId}`);
   });
 
-  socket.on('disconnect', () => {});
+  socket.on('disconnect', () => { });
 });
 
 // Connect to Database
@@ -62,7 +62,7 @@ if (process.env.NODE_ENV !== 'production') {
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'Welcome to Oppas Haven Role-Based Authentication API Server',
+    message: 'Welcome to Home Paw Role-Based Authentication API Server',
     status: 'Running'
   });
 });
