@@ -26,6 +26,20 @@ const jobSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  serviceType: {
+    type: String,
+    enum: [
+      'Pet Sitting',
+      'Dog Walking',
+      'Pet Boarding',
+      'Pet Day Care',
+      'Holiday Home Sitting',
+      'Security Checks',
+      'Drop-In Visits',
+      'Pet Taxi'
+    ],
+    required: true
+  },
   petType: {
     type: String,
     default: 'Dog'
