@@ -13,7 +13,7 @@ const generateToken = (id) => {
 // @access  Public
 const registerUser = async (req, res) => {
   try {
-    const { username, email, password, firstName, lastName, role } = req.body;
+    const { username, email, password, firstName, lastName, role, verificationReport } = req.body;
 
     if (!username || !email || !password || !firstName || !lastName) {
       return res.status(400).json({ success: false, message: 'Please provide all required fields' });
@@ -38,7 +38,8 @@ const registerUser = async (req, res) => {
       password,
       firstName,
       lastName,
-      role: role || 'owner' // default role is owner
+      role: role || 'owner', // default role is owner
+      verificationReport: verificationReport || ''
     });
 
     if (user) {
