@@ -13,7 +13,7 @@ const generateToken = (id) => {
 // @access  Public
 const registerUser = async (req, res) => {
   try {
-    const { username, email, password, firstName, lastName, role, verificationReport } = req.body;
+    const { username, email, password, firstName, lastName, role, verificationReport, policeVerification } = req.body;
 
     if (!username || !email || !password || !firstName || !lastName) {
       return res.status(400).json({ success: false, message: 'Please provide all required fields' });
@@ -39,7 +39,8 @@ const registerUser = async (req, res) => {
       firstName,
       lastName,
       role: role || 'owner', // default role is owner
-      verificationReport: verificationReport || ''
+      verificationReport: verificationReport || '',
+      policeVerification: policeVerification || ''
     });
 
     if (user) {
@@ -146,7 +147,8 @@ const updateProfile = async (req, res) => {
     // Update fields if provided
     const updatableFields = [
       'firstName', 'lastName', 'avatar', 'coverImage', 'displayName', 
-      'location', 'phone', 'profession', 'aboutUs', 'homeFeatures', 'pets'
+      'location', 'phone', 'profession', 'aboutUs', 'homeFeatures', 'pets',
+      'policeVerification', 'verificationReport'
     ];
 
     updatableFields.forEach(field => {

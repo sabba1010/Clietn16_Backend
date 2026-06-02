@@ -47,6 +47,7 @@ const userSchema = new mongoose.Schema({
   },
   avatar: { type: String, default: '' },
   verificationReport: { type: String, default: '' },
+  policeVerification: { type: String, default: '' },
   coverImage: { type: String, default: '' },
   displayName: { type: String, default: '' },
   location: { type: String, default: '' },
