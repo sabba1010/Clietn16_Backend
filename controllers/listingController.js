@@ -64,7 +64,7 @@ exports.getListings = async (req, res) => {
 
     const listings = await Listing.find(query).populate({
       path: 'user',
-      select: 'username firstName lastName email role verificationReport policeVerification'
+      select: 'username firstName lastName email role verificationReport policeVerification experiencesWith'
     });
 
     res.status(200).json({
@@ -109,7 +109,7 @@ exports.getListingById = async (req, res) => {
   try {
     const listing = await Listing.findById(req.params.id).populate({
       path: 'user',
-      select: 'username firstName lastName email role verificationReport policeVerification'
+      select: 'username firstName lastName email role verificationReport policeVerification experiencesWith'
     });
 
     if (!listing) {

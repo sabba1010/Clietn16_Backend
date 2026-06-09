@@ -148,7 +148,7 @@ const updateProfile = async (req, res) => {
     const updatableFields = [
       'firstName', 'lastName', 'avatar', 'coverImage', 'displayName', 
       'location', 'phone', 'profession', 'aboutUs', 'homeFeatures', 'pets',
-      'policeVerification', 'verificationReport'
+      'policeVerification', 'verificationReport', 'experiencesWith'
     ];
 
     updatableFields.forEach(field => {
@@ -177,7 +177,8 @@ const updateProfile = async (req, res) => {
         profession: updatedUser.profession,
         aboutUs: updatedUser.aboutUs,
         homeFeatures: updatedUser.homeFeatures,
-        pets: updatedUser.pets
+        pets: updatedUser.pets,
+        experiencesWith: updatedUser.experiencesWith
       }
     });
   } catch (error) {

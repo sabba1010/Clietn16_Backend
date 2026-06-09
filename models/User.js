@@ -54,12 +54,12 @@ const userSchema = new mongoose.Schema({
   phone: { type: String, default: '' },
   profession: { type: String, default: '' },
   aboutUs: { type: String, default: '' },
-  homeFeatures: {
-    nonSmoking: { type: Boolean, default: false },
-    spaciousBackyard: { type: Boolean, default: false },
-    securityAlarm: { type: Boolean, default: false },
-    homeChecks: { type: Boolean, default: false }
-  },
+  homeFeatures: [{
+    type: String
+  }],
+  experiencesWith: [{
+    type: String
+  }],
   pets: [{
     name: String,
     type: { type: String },
