@@ -13,7 +13,7 @@ const generateToken = (id) => {
 // @access  Public
 const registerUser = async (req, res) => {
   try {
-    const { username, email, password, firstName, lastName, role, verificationReport, policeVerification } = req.body;
+    const { username, email, password, firstName, lastName, role, verificationReport, policeVerification, packagePurchased, packageType } = req.body;
 
     if (!username || !email || !password || !firstName || !lastName) {
       return res.status(400).json({ success: false, message: 'Please provide all required fields' });
@@ -38,9 +38,11 @@ const registerUser = async (req, res) => {
       password,
       firstName,
       lastName,
-      role: role || 'owner', // default role is owner
+      role: role || 'owner',
       verificationReport: verificationReport || '',
-      policeVerification: policeVerification || ''
+      policeVerification: policeVerification || '',
+      packagePurchased: packagePurchased || false,
+      packageType: packageType || ''
     });
 
     if (user) {
@@ -54,7 +56,11 @@ const registerUser = async (req, res) => {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
-          role: user.role
+          role: user.role,
+          packagePurchased: user.packagePurchased,
+          packageType: user.packageType,
+          isApproved: user.isApproved,
+          profileCompleted: user.profileCompleted
         }
       });
     } else {
@@ -148,7 +154,8 @@ const updateProfile = async (req, res) => {
     const updatableFields = [
       'firstName', 'lastName', 'avatar', 'coverImage', 'displayName', 
       'location', 'phone', 'profession', 'aboutUs', 'homeFeatures', 'pets',
-      'policeVerification', 'verificationReport', 'experiencesWith'
+      'policeVerification', 'verificationReport', 'experiencesWith',
+      'profileCompleted', 'packagePurchased', 'packageType'
     ];
 
     updatableFields.forEach(field => {
@@ -178,7 +185,11 @@ const updateProfile = async (req, res) => {
         aboutUs: updatedUser.aboutUs,
         homeFeatures: updatedUser.homeFeatures,
         pets: updatedUser.pets,
-        experiencesWith: updatedUser.experiencesWith
+        experiencesWith: updatedUser.experiencesWith,
+        profileCompleted: updatedUser.profileCompleted,
+        packagePurchased: updatedUser.packagePurchased,
+        packageType: updatedUser.packageType,
+        isApproved: updatedUser.isApproved
       }
     });
   } catch (error) {
@@ -211,10 +222,32 @@ const getUserProfileById = async (req, res) => {
   }
 };
 
+// @desc    Purchase a package (pet owner only)
+// @route   POST /api/auth/purchase-package
+// @access  Private
+const purchasePackage = async (req, res) => {
+  try {
+    const { packageType } = req.body;
+    if (!packageType || !['monthly', 'annual'].includes(packageType)) {
+      return res.status(400).json({ success: false, message: 'Invalid package type. Choose monthly or annual.' });
+    }
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    user.packagePurchased = true;
+    user.packageType = packageType;
+    await user.save();
+    res.json({ success: true, message: 'Package purchased successfully', packageType });
+  } catch (error) {
+    console.error('Purchase package error:', error);
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   getMe,
   updateProfile,
-  getUserProfileById
+  getUserProfileById,
+  purchasePackage
 };

@@ -66,7 +66,11 @@ const userSchema = new mongoose.Schema({
     age: String,
     image: String,
     rating: { type: Number, default: 5.0 }
-  }]
+  }],
+  packagePurchased: { type: Boolean, default: false },
+  packageType: { type: String, enum: ['monthly', 'annual', ''], default: '' },
+  isApproved: { type: Boolean, default: false },
+  profileCompleted: { type: Boolean, default: false }
 }, {
   timestamps: true
 });

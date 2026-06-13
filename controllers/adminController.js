@@ -270,3 +270,22 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
+exports.approveUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    user.isApproved = !user.isApproved;
+    await user.save();
+    res.status(200).json({
+      success: true,
+      isApproved: user.isApproved,
+      message: user.isApproved ? 'User approved successfully' : 'User approval revoked',
+    });
+  } catch (error) {
+    console.error('Approve user error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
