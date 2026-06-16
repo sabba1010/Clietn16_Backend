@@ -1,5 +1,5 @@
 {
-  "name": "oppas-haven-backend",
+  "name": "house-and-paw-backend",
   "version": "1.0.0",
   "description": "Role-based auth backend for Home Paw",
   "main": "server.js",

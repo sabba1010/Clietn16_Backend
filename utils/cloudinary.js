@@ -32,7 +32,7 @@ const uploadToCloudinary = (file) => {
   }
 
   const isVideo = file.mimetype.startsWith('video/');
-  const folder = process.env.CLOUDINARY_FOLDER || 'oppas-haven';
+  const folder = process.env.CLOUDINARY_FOLDER || 'house-and-paw';
 
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(

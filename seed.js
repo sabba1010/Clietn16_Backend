@@ -15,7 +15,7 @@ const seedUsers = async () => {
     const users = [
       {
         username: 'admin',
-        email: 'admin@oppashaven.com',
+        email: 'admin@houseandpaw.com',
         password: 'admin123',
         firstName: 'System',
         lastName: 'Admin',
@@ -23,7 +23,7 @@ const seedUsers = async () => {
       },
       {
         username: 'superuser',
-        email: 'superuser@oppashaven.com',
+        email: 'superuser@houseandpaw.com',
         password: 'super123',
         firstName: 'Super',
         lastName: 'User',
@@ -31,7 +31,7 @@ const seedUsers = async () => {
       },
       {
         username: 'seller',
-        email: 'seller@oppashaven.com',
+        email: 'seller@houseandpaw.com',
         password: 'seller123',
         firstName: 'John',
         lastName: 'Sitter',

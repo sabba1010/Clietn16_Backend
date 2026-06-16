@@ -20,7 +20,7 @@ router.get('/seed', async (req, res) => {
     if (!user) {
       user = await User.create({
         username: 'testuser',
-        email: 'testuser@oppashaven.com',
+        email: 'testuser@houseandpaw.com',
         password: 'password123',
         firstName: 'Test',
         lastName: 'User',
@@ -30,7 +30,7 @@ router.get('/seed', async (req, res) => {
 
     await Listing.deleteMany({
       title: { $in: [
-        'Oppas Premium Dog Sitting & Care',
+        'House & Paw Premium Dog Sitting & Care',
         'Friendly Pet Taxi & Boarding',
         'Inactive Grooming Service'
       ]}
@@ -38,7 +38,7 @@ router.get('/seed', async (req, res) => {
 
     const pendingListing = await Listing.create({
       user: user._id,
-      title: 'Oppas Premium Dog Sitting & Care',
+      title: 'House & Paw Premium Dog Sitting & Care',
       tagline: 'Reliable overnight stay and care for your pets',
       category: 'house-sitting',
       address: 'Cape Town, South Africa',
@@ -49,14 +49,14 @@ router.get('/seed', async (req, res) => {
       minPrice: 25,
       maxPrice: 60,
       phone: '+27 82 123 4567',
-      website: 'https://oppashaven.co.za',
-      email: 'sitter@oppashaven.co.za',
+      website: 'https://houseandpaw.co.za',
+      email: 'sitter@houseandpaw.co.za',
       status: 'Pending',
       description: 'We offer professional pet sitting, house sitting, and dog boarding services in Cape Town. Experienced sitters with police clearance and first-aid certification.',
       enableContactWidget: true,
       socialLinks: {
-        facebook: 'https://facebook.com/oppashaven',
-        instagram: 'https://instagram.com/oppashaven'
+        facebook: 'https://facebook.com/houseandpaw',
+        instagram: 'https://instagram.com/houseandpaw'
       }
     });
 
@@ -73,8 +73,8 @@ router.get('/seed', async (req, res) => {
       minPrice: 30,
       maxPrice: 80,
       phone: '+27 83 987 6543',
-      website: 'https://oppashaven.co.za',
-      email: 'transport@oppashaven.co.za',
+      website: 'https://houseandpaw.co.za',
+      email: 'transport@houseandpaw.co.za',
       status: 'Active',
       description: 'Reliable pet transportation services. We safely transport your pets to vets, groomers, or boarding facilities. Air-conditioned vehicles with custom crates.',
       enableContactWidget: true
